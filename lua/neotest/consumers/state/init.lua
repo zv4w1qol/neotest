@@ -33,10 +33,12 @@ local function init(client)
   for _, buf in ipairs(nio.api.nvim_list_bufs()) do
     tracker:register_buffer(buf)
   end
+  local event = nio.control.event()
   nio.run(function()
     xpcall(update_positions, function(msg)
       logger.error("Error in state consumer", debug.traceback(msg, 2))
     end)
+    event.set()
   end)
   client.listeners.discover_positions = function(adapter_id)
     if not tracker:adapter_state(adapter_id) then
@@ -46,7 +48,7 @@ local function init(client)
   end
 
   client.listeners.run = function(adapter_id, _, position_ids)
-    tracker:update_running(adapter_id, position_ids)
+    tracker:update_running(adapter_id, position_ids, event)
   end
 
   client.listeners.results = function(adapter_id, results)

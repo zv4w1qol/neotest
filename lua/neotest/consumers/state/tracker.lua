@@ -147,7 +147,8 @@ function StateTracker:register_buffer(buffer)
   self.path_buffers[path] = buffer
 end
 
-function StateTracker:update_running(adapter_id, position_ids)
+function StateTracker:update_running(adapter_id, position_ids, event)
+  event.wait()
   local state = self:adapter_state(adapter_id)
   local running = state.running
   local tree = state.positions
